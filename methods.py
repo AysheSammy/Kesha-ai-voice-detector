@@ -27,25 +27,15 @@ def getBinaryButton(img_name):
     binaryBtn = cv2.adaptiveThreshold(btngray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,3,1)
     return binaryBtn
 
-def compareColoredImg(img_file,duration,coordination):
+def getCoorFromColoredImg(img_file,coordination):
     if coordination == None:
         # matches the first screen and the button
         coordination = pyautogui.locateCenterOnScreen(img_file)
         print("Coordination IMG", coordination)
-        if coordination != None:
-            pyautogui.moveTo(coordination, duration=duration)
-            pyautogui.click()
-            return 1
-        else:
-            return 0
+        return coordination
     else:
         coordination = pyautogui.locateCenterOnScreen(os.path.abspath(img_file))
-        if coordination != None:
-            pyautogui.moveTo(coordination, duration=duration)
-            pyautogui.click()
-            return 1
-        else:
-            return 0
+        return coordination
 
 
 def imageFunc(img_file,duration,coordination):

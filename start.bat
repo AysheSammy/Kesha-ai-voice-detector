@@ -1,5 +1,9 @@
 @ECHO off
 
-CALL "A:\Assistant\Version 2.3\.venv\Scripts\python.exe" "A:\Assistant\Version 2.3\main.py"
+CD "%~dp0.venv\Scripts\"
+
+CALL "%~dp0.venv\Scripts\activate.bat"
+
+"%~dp0.venv\Scripts\python.exe" "%~dp0main.py"
 
 PAUSE

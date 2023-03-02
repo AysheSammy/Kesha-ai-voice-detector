@@ -1,5 +1,4 @@
 import time
-import datetime
 
 # need to install ------------------------------------------------
 import speech_recognition as sr                                 #| pip install SpeechRecognition
@@ -9,26 +8,8 @@ import keyboard                                                 #| pip install f
 
 from constants import NUMS_RAW
 from fromfile import fromFile
-from tts import _TTS
-from alias import nameAlias
+from command import commands, speak, execute_cmd
 
-opts = {
-    "tbr": ('сколько','произнеси'),
-    "cmds": {
-        "ctime": ('текущщее время','сейчас времени','который час', 'времени'),
-        "startBitrix": ('начать рабочий день', 'начать битрикс', 'старт битрикс', 'старт рабочий день', 'начни рабочий день'),
-        "finishBitrix": ('завершить рабочий день', 'закончить рабочий день', 'завершить битрикс', 'закончить битрикс', 'заканчивай рабочий день', 'заверши битрикс'),
-        "fromfile": NUMS_RAW.keys(),
-        "exit": ['пока']
-    }
-}
-opts['alias'] = nameAlias
-
-# functions
-def speak(what):
-    tts = _TTS()
-    tts.start(what)
-    del(tts)
 
 # function that listens and slices the command to parts
 def callback(recognizer, audio):
@@ -36,13 +17,13 @@ def callback(recognizer, audio):
         voice = recognizer.recognize_google(audio, language="ru-RU").lower()
         print("[log] Распознано: " + voice)
         
-        if voice.startswith(opts['alias']):
+        if voice.startswith(commands['alias']):
             cmd = voice
             
-            for x in opts['alias']:
+            for x in commands['alias']:
                 cmd = cmd.replace(x, "").strip()
                 
-            for x in opts['tbr']:
+            for x in commands['tbr']:
                 cmd = cmd.replace(x, "").strip()
 
             cmd = recognize_cmd(cmd)
@@ -57,53 +38,16 @@ def callback(recognizer, audio):
 def recognize_cmd(cmd):
     RC = {'cmd': '', 'percent':30, 'cmdItem':''}
     
-    for c,v in opts['cmds'].items():
+    for c,v in commands['cmds'].items():
         for x in v:
             vrt = fuzz.ratio(cmd, x)
             if vrt > RC['percent']:
-                print(c, vrt)
                 RC['cmd'] = c
                 RC['percent'] = vrt
                 RC['cmdItem'] = NUMS_RAW[x] if c == "fromfile" else x
-    print(f'RC: {RC}')
     return RC
 
-# run functions due to the command
-def execute_cmd(cmd, item):
-    status = None
-    if cmd == 'ctime':
-        status = True
-        now = datetime.datetime.now()
-        if now.minute < 10:
-            speak("Сейчас " + str(now.hour)+":0"+str(now.minute))
-        else:
-            speak("Сейчас " + str(now.hour)+":"+str(now.minute))
-    
-    elif cmd == 'startBitrix':
-        speak("начинаю")
-        status = fromFile(2)
-    
-    elif cmd == 'finishBitrix':
-        speak("начинаю")
-        status = fromFile(1)
-    
-    elif cmd == 'fromfile':
-        speak("начинаю")
-        status = fromFile(item)
-    
-    elif cmd == 'exit':
-        status = True
-        speak("Хороших дней!")
-        quit()
-    
-    else:
-        status = True
-        speak("Команда не распознана, повтерите!")
 
-    if not status:
-        speak(str(item) + " не завершена!")
-    else:
-        speak(str(item) + " завершена!")
 
 # record
 r = sr.Recognizer()
