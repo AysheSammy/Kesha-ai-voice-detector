@@ -77,13 +77,30 @@ def imageFunc(img_file,duration,coordination):
         return None
 
 
-def textFunc(fileName, duration, coordination):
+def textFunc(fileName, duration, coordination, cycle=False):
     if coordination != None:
         pyautogui.moveTo(coordination, duration = duration)
         pyautogui.click()
 
     time.sleep(duration)
-    word = open(fileName, mode="r").read()
+    retVal = 0
+    if cycle:
+        datas = open(fileName, mode="r").read().splitlines(True)
+        print("DATAS: ", datas)
+        if len(datas) < 1:
+            return 'finish cycle'
+        else:
+            if len(datas) > 1:
+                open(fileName, 'w').writelines(datas[1:])  
+                retVal = 1
+            else:
+                open(fileName, 'w').writelines('')
+                retVal =  'last cycle'
+            word = datas[0]
+            print("WORD: ",word)            
+    else:
+        word = open(fileName, mode="r").read()
+        retVal = 1
+
     keyboardController().type(word)
-    
-    return 1
+    return retVal
