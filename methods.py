@@ -112,14 +112,16 @@ def textFunc(fileName, duration, coordination, cycle=False):
         datas = open(fileName, mode="r").read().splitlines(True)
         if len(datas) < 1:
             return 'finish cycle'
+        elif len(datas) > 1 and datas[0] == '\n':
+            open(fileName, 'w').writelines(datas[1:])
+            retVal = 'last cycle'
+        elif len(datas) > 1 and datas[0] != '\n':
+            open(fileName, 'w').writelines(datas[1:])
+            retVal = 1
         else:
-            if len(datas) > 1:
-                open(fileName, 'w').writelines(datas[1:])
-                retVal = 1
-            else:
-                open(fileName, 'w').writelines('')
-                retVal =  'last cycle'
-            word = datas[0]
+            open(fileName, 'w').writelines('')
+            retVal = 'last cycle'
+        word = datas[0]
     else:
         word = open(fileName, mode="r").read()
         retVal = 1

@@ -61,8 +61,8 @@ def newFunc(versionParent, versionChild, stepNumber, files, filePath, isLastCycl
                         if coor != None:
                             if fileName[0] == '2':
                                 x, y = coor
-                                x = x + coordination[0]
-                                y = y + coordination[1]
+                                x = x + coordination[0] if coordination[0] > 0 else x - coordination[0]
+                                y = y + coordination[1] if coordination[1] > 0 else y - coordination[1]
                                 coor = tuple([x, y])
                             status = 1
                             pyautogui.moveTo(coor, duration=duration)
@@ -75,7 +75,8 @@ def newFunc(versionParent, versionChild, stepNumber, files, filePath, isLastCycl
                         if fileName.startswith('cycle'):
                             status = textFunc(os.path.join(filePath, file), duration, coordination, cycle=True)
                             if status == 'finish cycle':
-                                continue
+                                isLastCycle = False
+                                status = 1
                             if status == 'last cycle':
                                 isLastCycle = True
                         elif fileName.startswith('R cycle') and not isLastCycle:
