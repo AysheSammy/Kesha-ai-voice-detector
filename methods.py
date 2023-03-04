@@ -1,3 +1,5 @@
+import collections
+import pygetwindow
 import time
 import os
 # need to install ------------------------------------------------
@@ -12,20 +14,22 @@ from pynput.keyboard import Controller as keyboardController    #| pip install p
 def getBinaryScreen():
     entireScreen = getScreenAsImage()
     entireScreen = np.array(entireScreen)
-    grayScreen = cv2.cvtColor(entireScreen, cv2.COLOR_BGR2GRAY)
-    grayScreen = cv2.GaussianBlur(grayScreen,(1,1),0)
+    entireScreen = cv2.cvtColor(entireScreen, cv2.COLOR_BGR2RGB)
+    # grayScreen = cv2.GaussianBlur(grayScreen,(1,1),0)
     # turns white&black image to binary
-    binaryScreen = cv2.adaptiveThreshold(grayScreen,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,3,1)
-    return binaryScreen
+    # binaryScreen = cv2.adaptiveThreshold(grayScreen,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,3,1)
+    return entireScreen
+
 
 def getBinaryButton(img_name):
     # gets image that we clicked on
     btn = cv2.imread(img_name)
-    btn = cv2.cvtColor(btn, cv2.COLOR_BGR2GRAY)
-    btngray = cv2.GaussianBlur(btngray,(1,1),0)
+    btn = cv2.cvtColor(btn, cv2.COLOR_BGR2RGB)
+    # btngray = cv2.GaussianBlur(btn,(1,1),0)
     # turns white&black to binary
-    binaryBtn = cv2.adaptiveThreshold(btngray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,3,1)
-    return binaryBtn
+    # binaryBtn = cv2.adaptiveThreshold(btngray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,3,1)
+    return btn
+
 
 def getCoorFromColoredImg(img_file,coordination):
     if coordination == None:
@@ -38,18 +42,38 @@ def getCoorFromColoredImg(img_file,coordination):
         return coordination
 
 
-def imageFunc(img_file,duration,coordination):
+Point = collections.namedtuple('Point', 'x y')
+def center(coords):
+    return Point(coords[0] + int(coords[2] / 2), coords[1] + int(coords[3] / 2))
+
+def imageFunc(img_file,coordination):
     binaryScreen = getBinaryScreen()
     binaryBtn = getBinaryButton(img_file)
     height, width = binaryBtn.shape[:2]
-    
+
     if coordination == None:
         # matches the fullscreen and the button
-        matchCoor = cv2.matchTemplate(binaryScreen, binaryBtn, cv2.TM_SQDIFF)
-        _, _, top_left, _ = cv2.minMaxLoc(matchCoor)
-        bottom_right = (top_left[0] + width, top_left[1] + height)
-        # get center
-        imgCenter = ((top_left[0]+bottom_right[0])/2, (top_left[1]+bottom_right[1])/2)
+        # matchCoor = cv2.matchTemplate(binaryScreen, binaryBtn, cv2.TM_SQDIFF)
+        # _, _, top_left, _ = cv2.minMaxLoc(matchCoor)
+        # bottom_right = (top_left[0] + width, top_left[1] + height)
+        # # get center
+        # imgCenter = ((top_left[0]+bottom_right[0])/2, (top_left[1]+bottom_right[1])/2)
+
+        # cv2.imshow('BinaryButton', binaryBtn)
+        # cv2.imshow('BinaryScreen', binaryScreen)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+
+        # print(pygetwindow.getAllTitles())
+
+        retVal = pyautogui.locate(binaryBtn, binaryScreen)
+
+        print("RETVAL in IMG: ", retVal)
+        if retVal is None:
+            return None
+        else:
+            return center(retVal)
+
     else:
         with mss.mss() as sct:
             x,y = coordination.split(' ')
@@ -69,12 +93,12 @@ def imageFunc(img_file,duration,coordination):
             # Show the final image with the matched area.
             cv2.imshow('Detected', sct_img)
 
-    if imgCenter != None:
-        pyautogui.moveTo(imgCenter, duration = duration)
-        pyautogui.click()
-        time.sleep(duration)
-    else:
-        return None
+        # if imgCenter != None:
+        #     pyautogui.moveTo(imgCenter, duration = duration)
+        #     pyautogui.click()
+        #     time.sleep(duration)
+        # else:
+        #     return None
 
 
 def textFunc(fileName, duration, coordination, cycle=False):
@@ -86,18 +110,16 @@ def textFunc(fileName, duration, coordination, cycle=False):
     retVal = 0
     if cycle:
         datas = open(fileName, mode="r").read().splitlines(True)
-        print("DATAS: ", datas)
         if len(datas) < 1:
             return 'finish cycle'
         else:
             if len(datas) > 1:
-                open(fileName, 'w').writelines(datas[1:])  
+                open(fileName, 'w').writelines(datas[1:])
                 retVal = 1
             else:
                 open(fileName, 'w').writelines('')
                 retVal =  'last cycle'
             word = datas[0]
-            print("WORD: ",word)            
     else:
         word = open(fileName, mode="r").read()
         retVal = 1

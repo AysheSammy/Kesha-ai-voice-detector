@@ -1,5 +1,4 @@
 import time
-
 # need to install ------------------------------------------------
 import speech_recognition as sr                                 #| pip install SpeechRecognition
 from fuzzywuzzy import fuzz                                     #| pip install fuzzywuzzy
@@ -46,7 +45,6 @@ def recognize_cmd(cmd):
                 RC['percent'] = vrt
                 RC['cmdItem'] = NUMS_RAW[x] if c == "fromfile" else x
     return RC
-
 
 
 # record

@@ -1,4 +1,3 @@
-
 import datetime
 from constants import NUMS_RAW
 from fromfile import fromFile
@@ -10,7 +9,6 @@ def speak(what):
     tts = _TTS()
     tts.start(what)
     del(tts)
-
 
 
 commands = {
@@ -28,6 +26,7 @@ commands = {
 }
 commands['alias'] = nameAlias
 
+
 # run functions due to the command
 def execute_cmd(cmd, item):
     status = None
@@ -38,24 +37,24 @@ def execute_cmd(cmd, item):
             speak("Сейчас " + str(now.hour)+":0"+str(now.minute))
         else:
             speak("Сейчас " + str(now.hour)+":"+str(now.minute))
-    
+
     elif cmd == 'startBitrix':
         speak("начинаю")
         status = fromFile(2)
-    
+
     elif cmd == 'finishBitrix':
         speak("начинаю")
         status = fromFile(1)
-    
+
     elif cmd == 'fromfile':
         speak("начинаю")
         status = fromFile(item)
-    
+
     # Add here if new comment is added=============================
     # elif cmd == 'abc':
     #     .....
     #==============================================================
-    
+
     elif cmd == 'exit':
         status = True
         speak("Хорошего дня!")
