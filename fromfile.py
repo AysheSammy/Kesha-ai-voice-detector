@@ -4,22 +4,51 @@ from constants import EXTENSIONS
 from methods import getCoorFromColoredImg, imageFunc, textFunc
 import pyautogui
 
+from tts import _TTS
+
+# functions
+def speak(what):
+    tts = _TTS()
+    tts.start(what)
+    del(tts)
+
+
+def ifDir(mainFolderPath):
+    folders = os.listdir(mainFolderPath)
+    for dir in folders:
+        print(os.path.join(mainFolderPath, dir))
+        speak("Начинаю " + dir)
+        fromFile(os.path.join(mainFolderPath, dir))
+        speak(str(dir) + " завершена!")
 
 def fromFile(folder):
-    # TODO: change path to dynamic path
-    filePath = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), str(folder)))
+    if not os.path.exists(folder):
+        filePath = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), str(folder)))
+    else:
+        if os.path.isdir(folder):
+            filePath = folder
+        else:
+            print("Given folder is incorrect or does not exists.")
+            return None
     print("FILEPATH", filePath)
     if not os.path.exists(filePath):
         print("file doesnt exist")
         return None
 
     files = os.listdir(filePath)
-    versionParent = 1
-    versionChild = 1
-    stepNumber = 1
-    restart = newFunc(versionParent, versionChild, stepNumber, files, filePath)
-    if restart != None:
-        restartCycle(restart, files, filePath)
+
+    isFiles = [os.path.isfile(os.path.join(filePath, f)) for f in files]
+    print('ISDIRs: ', isFiles)
+
+    if True not in isFiles:
+        ifDir(filePath)
+    else:
+        versionParent = 1
+        versionChild = 1
+        stepNumber = 1
+        restart = newFunc(versionParent, versionChild, stepNumber, files, filePath)
+        if restart != None:
+            restartCycle(restart, files, filePath)
 
 
 def restartCycle(fileName, files, filePath):
@@ -38,7 +67,7 @@ def restartCycle(fileName, files, filePath):
 def newFunc(versionParent, versionChild, stepNumber, files, filePath, isLastCycle = False):
     currentFile = f'_v{versionParent}.{versionChild}_s{stepNumber}_'
     print(currentFile)
-    
+
     for file in files:
         fileVars = os.path.splitext(file)
         fileExt = fileVars[-1]
@@ -55,21 +84,36 @@ def newFunc(versionParent, versionChild, stepNumber, files, filePath, isLastCycl
                     coordination = tuple(int(r) for r in vals[4][1:].split(' ')) if vals[4][1:] != '' else None
 
                     if fileType == 'img':
-                        time.sleep(duration)
-                        coor = getCoorFromColoredImg(os.path.join(filePath, file), coordination)
-                        # coor = imageFunc(os.path.join(filePath, file), coordination)
-                        if coor != None:
-                            if fileName[0] == '2':
-                                x, y = coor
-                                x = x + coordination[0] if coordination[0] > 0 else x - coordination[0]
-                                y = y + coordination[1] if coordination[1] > 0 else y - coordination[1]
-                                coor = tuple([x, y])
-                            status = 1
-                            pyautogui.moveTo(coor, duration=duration)
-                            pyautogui.click()
-                            time.sleep(duration)
+                        if duration == 8.8:
+                            for _ in range(88):
+                                time.sleep(1)
+                                coor = getCoorFromColoredImg(os.path.join(filePath, file), coordination)
+                                if coor != None:
+                                    if fileName[0] == '2':
+                                        x, y = coor
+                                        x = x + coordination[0] if coordination[0] > 0 else x - coordination[0]
+                                        y = y + coordination[1] if coordination[1] > 0 else y - coordination[1]
+                                        coor = tuple([x, y])
+                                    status = 1
+                                    pyautogui.moveTo(coor, duration=duration)
+                                    pyautogui.click()
+                                    time.sleep(duration)
                         else:
-                            status = 0
+                            time.sleep(duration)
+                            coor = getCoorFromColoredImg(os.path.join(filePath, file), coordination)
+                            # coor = imageFunc(os.path.join(filePath, file), coordination)
+                            if coor != None:
+                                if fileName[0] == '2':
+                                    x, y = coor
+                                    x = x + coordination[0] if coordination[0] > 0 else x - coordination[0]
+                                    y = y + coordination[1] if coordination[1] > 0 else y - coordination[1]
+                                    coor = tuple([x, y])
+                                status = 1
+                                pyautogui.moveTo(coor, duration=duration)
+                                pyautogui.click()
+                                time.sleep(duration)
+                            else:
+                                status = 0
 
                     elif fileType == 'txt':
                         if fileName.startswith('cycle'):
@@ -86,8 +130,8 @@ def newFunc(versionParent, versionChild, stepNumber, files, filePath, isLastCycl
                             status = 1
                         else:
                             status = textFunc(os.path.join(filePath, file), duration, coordination)
-            
-                            
+
+
                     if status:
                         versionParent = versionChild
                         stepNumber += 1
