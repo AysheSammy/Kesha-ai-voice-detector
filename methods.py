@@ -1,5 +1,4 @@
 import collections
-import pygetwindow
 import time
 import os
 # need to install ------------------------------------------------
@@ -32,6 +31,7 @@ def getBinaryButton(img_name):
 
 
 def getCoorFromColoredImg(img_file,coordination):
+    print('IMG: ',img_file)
     if coordination == None:
         # matches the first screen and the button
         coordination = pyautogui.locateCenterOnScreen(img_file)
@@ -109,22 +109,25 @@ def textFunc(fileName, duration, coordination, cycle=False):
     time.sleep(duration)
     retVal = 0
     if cycle:
-        datas = open(fileName, mode="r").read().splitlines(True)
+        datas = open(fileName, mode="r", encoding="utf-8").read().splitlines(True)
         if len(datas) < 1:
             return 'finish cycle'
         elif len(datas) > 1 and datas[0] == '\n':
-            open(fileName, 'w').writelines(datas[1:])
+            open(fileName, 'w', encoding="utf-8").writelines(datas[1:])
             retVal = 'last cycle'
         elif len(datas) > 1 and datas[0] != '\n':
-            open(fileName, 'w').writelines(datas[1:])
+            open(fileName, 'w', encoding="utf-8").writelines(datas[1:])
             retVal = 1
         else:
-            open(fileName, 'w').writelines('')
+            open(fileName, 'w', encoding="utf-8").writelines('')
             retVal = 'last cycle'
         word = datas[0]
     else:
-        word = open(fileName, mode="r").read()
+        word = open(fileName, mode="r", encoding="utf-8").read()
         retVal = 1
-
+    print(word)
     keyboardController().type(word)
     return retVal
+
+def typeText(text):
+    keyboardController().type(text)

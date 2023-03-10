@@ -1,6 +1,6 @@
 import datetime
 from constants import NUMS_RAW
-from fromfile import fromFile
+from from_file_with_excel import fromFile
 from alias import nameAlias
 from tts import _TTS
 

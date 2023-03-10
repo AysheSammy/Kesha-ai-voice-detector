@@ -6,7 +6,7 @@ import keyboard                                                 #| pip install f
 # ----------------------------------------------------------------
 
 from constants import NUMS_RAW
-from fromfile import fromFile
+from from_file_with_excel import fromFile
 from command import commands, speak, execute_cmd
 
 
