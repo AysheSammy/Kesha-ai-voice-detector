@@ -1,9 +1,10 @@
 import os
 import time
 from openpyxl import load_workbook
+from PIL import Image
 import pyautogui
 
-from constants import EXTENSIONS
+from constants import EXTENSIONS, MOUSE_DURATION
 from methods import getCoorFromColoredImg, imageFunc, typeText
 from tts import _TTS
 
@@ -91,50 +92,62 @@ def operateOverFiles(fileName):
     pars = fileName.split('_')
     imgName = pars[0]
     actionType = pars[1]
-    duration = int(pars[2][1:]) / 10 if int(pars[2][1:]) >= 1 else int(pars[2][1:])
+    duration = float(pars[2][1:]) / 10 if float(pars[2][1:]) >= 1 else float(pars[2][1:])
     coordination = tuple(int(r) for r in pars[3][1:].split(' ')) if pars[3][1:] != '' else None
 
     status = 0
     for file in files:
         imgFileName = os.path.splitext(file)[0]
         if imgName == imgFileName:
-        
             if duration == 8.8:
                 pass
                 for _ in range(88):
-                    time.sleep(1)
-                    if os.path.isfile(os.path.join(filePath, file)):
-                        coor = getCoorFromColoredImg(os.path.join(filePath, file), coordination)
-                    elif os.path.isdir(os.path.join(filePath, file)):
-                        for f in os.listdir(os.path.join(filePath, file)):
-                            imgFolder = os.path.join(filePath, file)
-                            tryCoor = getCoorFromColoredImg(os.path.join(imgFolder, f), coordination)
+                    time.sleep(0.5)
+                    imgFolder = os.path.join(filePath, file)
+                    imgFile = ''
+                    if os.path.isfile(imgFolder):
+                        coor = getCoorFromColoredImg(imgFolder, coordination)
+                        imgFile = imgFolder
+                    elif os.path.isdir(imgFolder):
+                        for f in os.listdir(imgFolder):
+                            imgFile = os.path.join(imgFolder, f)
+                            tryCoor = getCoorFromColoredImg(imgFile, coordination)
                             if tryCoor != None:
                                 coor = tryCoor
                                 break
                             else:
                                 coor = None
-                        
+
                     if coor != None:
                         status = 1
                         if actionType == '2':
+                            img = Image.open(imgFile)
+                            width, height = img.width, img.height
                             x, y = coor
+                            x = x - (width/2)
+                            y = y - (height/2)
+                            if coordination == None:
+                                coorPar = os.path.splitext(os.path.basename(imgFile))[0].split('-')[-1][1:]
+                                coordination = tuple(int(r) for r in coorPar.split(' ')) if coorPar != '' else None
                             x = x + coordination[0] if coordination[0] > 0 else x - coordination[0]
                             y = y + coordination[1] if coordination[1] > 0 else y - coordination[1]
                             coor = tuple([x, y])
-                        pyautogui.moveTo(coor, duration=0.2 if duration > 0 else 0)
+                        pyautogui.moveTo(coor, duration=MOUSE_DURATION)
                         pyautogui.click()
                         break
                     else:
                         status = 0
             else:
                 time.sleep(duration)
-                if os.path.isfile(os.path.join(filePath, file)):
-                    coor = getCoorFromColoredImg(os.path.join(filePath, file), coordination)
-                elif os.path.isdir(os.path.join(filePath, file)):
-                    for f in os.listdir(os.path.join(filePath, file)):
-                        imgFolder = os.path.join(filePath, file)
-                        tryCoor = getCoorFromColoredImg(os.path.join(imgFolder, f), coordination)
+                imgFolder = os.path.join(filePath, file)
+                imgFile = ''
+                if os.path.isfile(imgFolder):
+                    coor = getCoorFromColoredImg(imgFolder, coordination)
+                    imgFile = imgFolder
+                elif os.path.isdir(imgFolder):
+                    for f in os.listdir(imgFolder):
+                        imgFile = os.path.join(imgFolder, f)
+                        tryCoor = getCoorFromColoredImg(imgFile, coordination)
                         if tryCoor != None:
                             coor = tryCoor
                             break
@@ -144,12 +157,19 @@ def operateOverFiles(fileName):
                 if coor != None:
                     status = 1
                     if actionType == '2':
+                        img = Image.open(imgFile)
+                        width, height = img.width, img.height
                         x, y = coor
+                        x = x - (width/2)
+                        y = y - (height/2)
+                        if coordination == None:
+                            coorPar = os.path.splitext(os.path.basename(imgFile))[0].split('-')[-1][1:]
+                            coordination = tuple(int(r) for r in coorPar.split(' ')) if coorPar != '' else None
                         x = x + coordination[0] if coordination[0] > 0 else x - coordination[0]
                         y = y + coordination[1] if coordination[1] > 0 else y - coordination[1]
                         coor = tuple([x, y])
 
-                    pyautogui.moveTo(coor, duration=0.2 if duration > 0 else 0)
+                    pyautogui.moveTo(coor, duration=MOUSE_DURATION)
                     pyautogui.click()
                 else:
                     status = 0

@@ -1,4 +1,4 @@
-#!D:\PC\Desktop\Version 3.1\.venv\Scripts\python.exe
+#!D:\PC\Desktop\assistant\.venv\Scripts\python.exe
 
 from desktopmagic.scripts.screengrab_torture_test import main
 

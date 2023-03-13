@@ -1,3 +1,5 @@
+MOUSE_DURATION = 0.2
+
 NUMS_RAW = {
     'ноль': 0,
     'нуль': 0,
